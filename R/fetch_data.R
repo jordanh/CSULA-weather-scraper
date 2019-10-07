@@ -102,7 +102,7 @@ parseData <- function(htmlString, timezone) {
     df[1, colName] <- extractTime(extractedText)
   }
   
-  # Process the scraped summary-block
+  # Process the scraped wind-block
   windBlockNodes <- html_nodes(
     htmlNodes, "div.wind-block table tbody tr.data-row td"
   )
@@ -120,12 +120,62 @@ parseData <- function(htmlString, timezone) {
     # 2-minute interval data
     colName <- paste(colBaseName,"_2_min", sep="")
     df[1, colName] <- html_text(windBlockNodes[i+1]) %>%
-                          extractValue(colBaseName, .)
+                      extractValue(colName, .)
     
     # 10-minute interval data
     colName <- paste(colBaseName,"_10_min", sep="")
     df[1, colName] <- html_text(windBlockNodes[i+2]) %>%
-      extractValue(colBaseName, .)
+                      extractValue(colName, .)
+  }
+  
+  # Process the scraped rain-block
+  rainBlockNodes <- html_nodes(
+    htmlNodes, "div.rain-block table tbody tr.data-row td"
+  )
+  for (i in 1:length(rainBlockNodes)) {
+    # rainBlockNodes are in groups of 7:
+    # 1: variable name (e.g. "sensor_et")
+    # 2: current rate
+    # 3: hourly accumulation
+    # 4: daily accumulation
+    # 5: monthly accumulation
+    # 6: yearly accumulation
+    # 7: storm accumulation
+    if ((i %% 7) != 1) next # process the 1st of every 7th row
+    
+    colBaseName <- html_attr(rainBlockNodes[i], "data-l10n-id") %>%
+                   sub("rain", "rain_in", .) %>%
+                   sub("sensor_et", "sensor_et_in", .)
+    
+    # current rate
+    colName <- paste(colBaseName,"_h_rate", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+1]) %>%
+                      extractValue(colBaseName, .)
+    
+    # hourly accumulation
+    colName <- paste(colBaseName,"_hourly_accumulation", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+2]) %>%
+                      extractValue(colBaseName, .)
+    
+    # daily accumulation
+    colName <- paste(colBaseName,"_daily_accumulation", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+3]) %>%
+                      extractValue(colBaseName, .)
+    
+    # monthly accumulation
+    colName <- paste(colBaseName,"_monthly_accumulation", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+4]) %>%
+                      extractValue(colBaseName, .)
+    
+    # yearly accumulation
+    colName <- paste(colBaseName,"_yearly_accumulation", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+5]) %>%
+                      extractValue(colBaseName, .)
+    
+    # storm accumulation
+    colName <- paste(colBaseName,"_storm_accumulation", sep="")
+    df[1, colName] <- html_text(rainBlockNodes[i+6]) %>%
+                      extractValue(colBaseName, .)
   }
   
   return (df)
@@ -136,9 +186,9 @@ fetchData <- function(url=defaultUrl, timezone=defaultTimezone) {
   remDr$open()
   remDr$navigate(url)
   htmlString <- remDr$getPageSource()[[1]]
-  data <- parseData(htmlString, timezone)
+  df <- parseData(htmlString, timezone)
   
-  return(data)
+  return(df)
 }
 
 fetchDataCleanup <- function() {
