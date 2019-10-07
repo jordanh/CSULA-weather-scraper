@@ -1,5 +1,7 @@
+library(magrittr)
 library(RSelenium)
 library(wdman)
+
 
 # Global variables
 defaultUrl <- 'https://www.weatherlink.com/embeddablePage/show/bdb620b1f32a4833a1e61549d46a6093/summary'

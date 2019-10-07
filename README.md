@@ -3,11 +3,17 @@
 
 Periodically scrape Cal State LA's weather station, and save these data to CSV.
 
+## Important Note!
+
+This is a work in progress, and is not yet complete.
+
 ## Dependencies
 
 Open the project with RStudio. It will require the following libraries:
 
+   * magrittr - the forward pipe operator (%>%)
    * packrat - for managing package dependencies
+   * RSelenium - a framework for controling a web browser
    * rvest - for scraping the web
 
 ## Implementation Notes
