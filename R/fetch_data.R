@@ -22,9 +22,6 @@ maybeInitializeRSelenium <- function() {
 
 parseData <- function(htmlString, timezone) {
   htmlNodes <- read_html(htmlString)
-  summaryBlockNodes <- html_nodes(
-    htmlNodes, "div.summary-block table tbody tr.data-row td"
-  )
   
   # Parse when these weather station data were last updated
   lastUpdated <- html_nodes(htmlNodes, "span#conditionsUpdated") %>%
@@ -60,10 +57,15 @@ parseData <- function(htmlString, timezone) {
       as.POSIXct()
   }
 
+  # Initialize the data frame to return
   df <- data.frame()
   df[1, "url_scraped_at"] = Sys.time()
   df[1, "sensor_values_updated_at"] = as.POSIXct(lastUpdated)
   
+  # Process the scraped summary-block
+  summaryBlockNodes <- html_nodes(
+    htmlNodes, "div.summary-block table tbody tr.data-row td"
+  )
   for (i in 1:length(summaryBlockNodes)) {
     # summaryBlockNodes are in groups of 4:
     # 1: variable name (e.g. "sensor_temp")
@@ -76,6 +78,7 @@ parseData <- function(htmlString, timezone) {
                    sub("temp", "temp_f", .) %>%
                    sub("barometer", "barometer_hg", .) %>%
                    sub("hum", "hum_pct", .) %>%
+                   sub("wind_speed", "wind_speed_mph", .) %>%
                    sub("wind_direction", "wind_direction_deg", .)
     
     # current value
@@ -97,6 +100,32 @@ parseData <- function(htmlString, timezone) {
     
     colName <- paste(colBaseName,"_low_time", sep="")
     df[1, colName] <- extractTime(extractedText)
+  }
+  
+  # Process the scraped summary-block
+  windBlockNodes <- html_nodes(
+    htmlNodes, "div.wind-block table tbody tr.data-row td"
+  )
+  for (i in 1:length(windBlockNodes)) {
+    # windBlockNodes are also in groups of 4:
+    # 1: variable name (e.g. "sensor_temp")
+    # 2: 2-minute interval data
+    # 3: 10-minute interval data
+    # 4: blank
+    if ((i %% 4) != 1) next # process the 1st of every 4th row
+    
+    colBaseName <- html_attr(windBlockNodes[i], "data-l10n-id") %>%
+                   sub("spd", "spd_mph", .)
+    
+    # 2-minute interval data
+    colName <- paste(colBaseName,"_2_min", sep="")
+    df[1, colName] <- html_text(windBlockNodes[i+1]) %>%
+                          extractValue(colBaseName, .)
+    
+    # 10-minute interval data
+    colName <- paste(colBaseName,"_10_min", sep="")
+    df[1, colName] <- html_text(windBlockNodes[i+2]) %>%
+      extractValue(colBaseName, .)
   }
   
   return (df)
