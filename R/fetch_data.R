@@ -1,5 +1,7 @@
 library(magrittr)
 library(RSelenium)
+library(rvest)
+library(stringr)
 library(wdman)
 
 
@@ -7,8 +9,14 @@ library(wdman)
 defaultUrl <- 'https://www.weatherlink.com/embeddablePage/show/bdb620b1f32a4833a1e61549d46a6093/summary'
 defaultTimezone <- "America/Los_Angeles"
 
-pjsDrv <- NULL
-remDr <- NULL
+## Only creating them if they do not already exist allow us to stop and re-run the
+## RStudio script without having to terminate the PhanomJS child process
+if (!exists("pjsDrv")) {
+  pjsDrv <- NULL  
+}
+if (!exists("remDr")) {
+  remDr <- NULL
+}
 
 maybeInitializeRSelenium <- function() {
   if (is.null(pjsDrv)) {
@@ -17,6 +25,7 @@ maybeInitializeRSelenium <- function() {
   
   if (is.null(remDr)) {
     remDr <<- remoteDriver(browserName = 'phantomjs', port = as.integer(4567))
+    remDr$open()
   }
   
   return(TRUE)
@@ -185,7 +194,6 @@ parseData <- function(htmlString, timezone) {
 
 fetchData <- function(url=defaultUrl, timezone=defaultTimezone) {
   maybeInitializeRSelenium()
-  remDr$open()
   remDr$navigate(url)
   htmlString <- remDr$getPageSource()[[1]]
   df <- parseData(htmlString, timezone)
