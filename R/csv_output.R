@@ -6,17 +6,19 @@ getOutputFilename <- function() {
 }
 
 writeDataToCsvByMonth <- function(df) {
-  outputFileName <- getOutputFilename()
+  outputFilename <- getOutputFilename()
 
   isAppending <- FALSE
-  if (file.exists(outputFileName)) {
+  if (file.exists(outputFilename)) {
     isAppending <- TRUE
   }
   
   write.table(df,
-              file=outputFilename(),
+              file=outputFilename,
               append=isAppending,
               sep=",",
               row.names=F,
               col.names=!isAppending)
+  
+  return (outputFilename)
 }

@@ -97,19 +97,19 @@ parseData <- function(htmlString, timezone) {
                           extractValue(colBaseName, .)
     
     # daily high
-    colName <- paste(colBaseName,"_high_value", sep="")
+    colName <- paste0(colBaseName,"_high_value")
     extractedText <- html_text(summaryBlockNodes[i+2])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste(colBaseName,"_high_time", sep="")
+    colName <- paste0(colBaseName,"_high_time")
     df[1, colName] <- extractTime(extractedText)
     
     # daily low
-    colName <- paste(colBaseName,"_low_value", sep="")
+    colName <- paste0(colBaseName,"_low_value")
     extractedText <- html_text(summaryBlockNodes[i+3])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste(colBaseName,"_low_time", sep="")
+    colName <- paste0(colBaseName,"_low_time")
     df[1, colName] <- extractTime(extractedText)
   }
   
@@ -129,12 +129,12 @@ parseData <- function(htmlString, timezone) {
                    sub("spd", "spd_mph", .)
     
     # 2-minute interval data
-    colName <- paste(colBaseName,"_2_min", sep="")
+    colName <- paste0(colBaseName,"_2_min")
     df[1, colName] <- html_text(windBlockNodes[i+1]) %>%
                       extractValue(colName, .)
     
     # 10-minute interval data
-    colName <- paste(colBaseName,"_10_min", sep="")
+    colName <- paste0(colBaseName,"_10_min")
     df[1, colName] <- html_text(windBlockNodes[i+2]) %>%
                       extractValue(colName, .)
   }
@@ -159,32 +159,32 @@ parseData <- function(htmlString, timezone) {
                    sub("sensor_et", "sensor_et_in", .)
     
     # current rate
-    colName <- paste(colBaseName,"_h_rate", sep="")
+    colName <- paste0(colBaseName,"_h_rate")
     df[1, colName] <- html_text(rainBlockNodes[i+1]) %>%
                       extractValue(colBaseName, .)
     
     # hourly accumulation
-    colName <- paste(colBaseName,"_hourly_accumulation", sep="")
+    colName <- paste0(colBaseName,"_hourly_accumulation")
     df[1, colName] <- html_text(rainBlockNodes[i+2]) %>%
                       extractValue(colBaseName, .)
     
     # daily accumulation
-    colName <- paste(colBaseName,"_daily_accumulation", sep="")
+    colName <- paste0(colBaseName,"_daily_accumulation")
     df[1, colName] <- html_text(rainBlockNodes[i+3]) %>%
                       extractValue(colBaseName, .)
     
     # monthly accumulation
-    colName <- paste(colBaseName,"_monthly_accumulation", sep="")
+    colName <- paste0(colBaseName,"_monthly_accumulation")
     df[1, colName] <- html_text(rainBlockNodes[i+4]) %>%
                       extractValue(colBaseName, .)
     
     # yearly accumulation
-    colName <- paste(colBaseName,"_yearly_accumulation", sep="")
+    colName <- paste0(colBaseName,"_yearly_accumulation")
     df[1, colName] <- html_text(rainBlockNodes[i+5]) %>%
                       extractValue(colBaseName, .)
     
     # storm accumulation
-    colName <- paste(colBaseName,"_storm_accumulation", sep="")
+    colName <- paste0(colBaseName,"_storm_accumulation")
     df[1, colName] <- html_text(rainBlockNodes[i+6]) %>%
                       extractValue(colBaseName, .)
   }
