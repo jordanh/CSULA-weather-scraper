@@ -2,7 +2,7 @@
 filenameFormat <- "output/%Y-%m_CSULA_weather_data.csv"
 
 getOutputFilename <- function() {
-  return (format(Sys.Date(), filenameFormat))
+  return(format(Sys.Date(), filenameFormat))
 }
 
 writeDataToCsvByMonth <- function(df) {
@@ -20,5 +20,5 @@ writeDataToCsvByMonth <- function(df) {
               row.names=F,
               col.names=!isAppending)
   
-  return (outputFilename)
+  return(outputFilename)
 }

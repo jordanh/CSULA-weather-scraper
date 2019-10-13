@@ -31,6 +31,11 @@ maybeInitializeRSelenium <- function() {
   return(TRUE)
 }
 
+POSIXctToUTC <- function(ct) {
+  attr(ct, "tzone") <- "UTC" 
+  return(ct)
+}
+
 parseData <- function(htmlString, timezone) {
   htmlNodes <- read_html(htmlString)
   
@@ -39,7 +44,9 @@ parseData <- function(htmlString, timezone) {
                  html_text() %>%
                  str_match("Conditions as of: (.+)") %>%
                 { .[2] } %>%  # grab 2nd elment of return value from str_match
-                strptime("%I:%M %p %A, %b %d, %Y", timezone)  # parse time
+                strptime("%I:%M %p %A, %b %d, %Y", timezone) %>% # parse time
+                as.POSIXct() %>%
+                POSIXctToUTC()
   lastUpdatedDate <- as.Date(lastUpdated)
   
   # Convenience function to extract a numeric value from HTML text:
@@ -65,13 +72,16 @@ parseData <- function(htmlString, timezone) {
     str_extract(text, "[^ ]?.:.. (AM|PM)") %>%
       paste(lastUpdatedDate, .) %>%
       strptime("%Y-%m-%d %I:%M %p", timezone) %>%
-      as.POSIXct()
+      as.POSIXct() %>%
+      POSIXctToUTC()
   }
 
   # Initialize the data frame to return
   df <- data.frame()
-  df[1, "url_scraped_at"] = Sys.time()
-  df[1, "sensor_values_updated_at"] = as.POSIXct(lastUpdated)
+  df[1, "url_scraped_at_utc"] = Sys.time() %>%
+    as.POSIXct() %>%
+    POSIXctToUTC()
+  df[1, "sensor_values_updated_at_utc"] = lastUpdated
   
   # Process the scraped summary-block
   summaryBlockNodes <- html_nodes(
@@ -101,7 +111,7 @@ parseData <- function(htmlString, timezone) {
     extractedText <- html_text(summaryBlockNodes[i+2])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste0(colBaseName,"_high_time")
+    colName <- paste0(colBaseName,"_high_time_utc")
     df[1, colName] <- extractTime(extractedText)
     
     # daily low
@@ -109,7 +119,7 @@ parseData <- function(htmlString, timezone) {
     extractedText <- html_text(summaryBlockNodes[i+3])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste0(colBaseName,"_low_time")
+    colName <- paste0(colBaseName,"_low_time_utc")
     df[1, colName] <- extractTime(extractedText)
   }
   
