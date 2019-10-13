@@ -1,11 +1,12 @@
 source("./R/csv_output.R")
 source("./R/fetch_data.R")
 
+# Configuration - change these to configure the sampling duration
+delayOnFailureRetrySeconds <- 1
+delayBetweenSamplesMinutes <- 1
+
 url <- 'https://www.weatherlink.com/embeddablePage/show/bdb620b1f32a4833a1e61549d46a6093/summary'
 urlTimezone <- "America/Los_Angeles"
-
-delayOnRetrySeconds <- 1
-delayBetweenSamplesMinutes <- 1
 
 interruptableSleep = function(sleepSeconds) {
   for (i in 1:sleepSeconds) {
@@ -25,7 +26,7 @@ while (TRUE) {
     fetchFailed <<- TRUE
   })
   if (fetchFailed) {
-    interruptableSleep(delayOnRetrySeconds)
+    interruptableSleep(delayOnFailureRetrySeconds)
     print("Retry")
     next()
   }
