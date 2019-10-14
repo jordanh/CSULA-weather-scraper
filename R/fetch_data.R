@@ -44,8 +44,7 @@ parseData <- function(htmlString, timezone) {
                  html_text() %>%
                  str_match("Conditions as of: (.+)") %>%
                 { .[2] } %>%  # grab 2nd elment of return value from str_match
-                strptime("%I:%M %p %A, %b %d, %Y", timezone) %>% # parse time
-                as.POSIXct() %>%
+                as.POSIXct(format="%I:%M %p %A, %b %d, %Y", tz=timezone) %>% # parse time
                 POSIXctToUTC()
   lastUpdatedDate <- as.Date(lastUpdated)
   
@@ -71,17 +70,16 @@ parseData <- function(htmlString, timezone) {
   extractTime <- function(text) {
     str_extract(text, "[^ ]?.:.. (AM|PM)") %>%
       paste(lastUpdatedDate, .) %>%
-      strptime("%Y-%m-%d %I:%M %p", timezone) %>%
-      as.POSIXct() %>%
+      as.POSIXct(format="%Y-%m-%d %I:%M %p", tz=timezone) %>%
       POSIXctToUTC()
   }
 
   # Initialize the data frame to return
   df <- data.frame()
-  df[1, "url_scraped_at_utc"] = Sys.time() %>%
+  df[1, "url_scraped_at"] = Sys.time() %>%
     as.POSIXct() %>%
     POSIXctToUTC()
-  df[1, "sensor_values_updated_at_utc"] = lastUpdated
+  df[1, "sensor_values_updated_at"] = lastUpdated
   
   # Process the scraped summary-block
   summaryBlockNodes <- html_nodes(
@@ -111,7 +109,7 @@ parseData <- function(htmlString, timezone) {
     extractedText <- html_text(summaryBlockNodes[i+2])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste0(colBaseName,"_high_time_utc")
+    colName <- paste0(colBaseName,"_high_time")
     df[1, colName] <- extractTime(extractedText)
     
     # daily low
@@ -119,7 +117,7 @@ parseData <- function(htmlString, timezone) {
     extractedText <- html_text(summaryBlockNodes[i+3])
     df[1, colName] <- extractValue(colName, extractedText)
     
-    colName <- paste0(colBaseName,"_low_time_utc")
+    colName <- paste0(colBaseName,"_low_time")
     df[1, colName] <- extractTime(extractedText)
   }
   
