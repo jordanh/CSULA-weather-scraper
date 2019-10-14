@@ -1,6 +1,8 @@
+.DS_Store
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+notebooks/*.html
 output/*.csv
 packrat/lib*/

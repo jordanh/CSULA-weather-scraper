@@ -1,0 +1,34 @@
+---
+title: "CSULA Weather Scraper Notebook"
+output: html_notebook
+---
+
+## Finding and opening the most recent CSV file
+
+```{r}
+newestFilename <- list.files("./output", pattern="\\.csv$") %>%
+                  sort(decreasing = TRUE) %>%
+                  { paste0("./output/", .[1]) }
+```
+
+## Read the CSV into a data frame
+```{r}
+df <- read.csv(newestFilename)
+df$sensor_values_updated_at_utc <- 
+  as.POSIXct(df$sensor_values_updated_at_utc,
+             format="%Y-%m-%d %H:%M:%S", tz="UTC")
+timestampFirst <- min(df$sensor_values_updated_at_utc, na.rm=TRUE)
+timestampLast <- max(df$sensor_values_updated_at_utc, na.rm=TRUE)
+```
+
+## Plot the temperature
+```{r}
+plotTitle <- paste("CSULA Weather", timestampFirst, "-", timestampLast)
+plot(df$sensor_values_updated_at_utc, df$sensor_temp_f,
+  main=plotTitle, ylab="Temperature", xlab="Timestamp", type="b", col="red")
+par(new=TRUE)
+plot(df$sensor_values_updated_at_utc, df$sensor_hum_pct, axes=FALSE, type="b", col="green", ylab="", xlab="")
+axis(side=4)
+mtext("Humidity", side=4)
+```
+
