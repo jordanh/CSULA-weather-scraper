@@ -6,9 +6,9 @@ output: html_notebook
 ## Finding and opening the most recent CSV file
 
 ```{r}
-newestFilename <- list.files("./output", pattern="\\.csv$") %>%
+newestFilename <- list.files("../output", pattern="\\.csv$") %>%
                   sort(decreasing = TRUE) %>%
-                  { paste0("./output/", .[1]) }
+                  { paste0("../output/", .[1]) }
 ```
 
 ## Read the CSV into a data frame
