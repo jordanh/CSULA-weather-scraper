@@ -5,8 +5,25 @@ Periodically scrape Cal State LA's weather station, and save these data to CSV.
 
 ## Dependencies
 
-This project uses packrat, it's library dependencies can be loaded automatically
-using RStudio.
+### System dependencies
+
+Install libxml:
+
+```brew install libxml2```
+
+### Rselenium
+
+If when installing RSelenium packages it asks to install from source, say 'n'
+
+### wdman
+
+wdman needs to install all of its binary dependencies, this is done by manually
+running the following R code:
+
+```R
+selenium(verbose = TRUE)
+```
+
 
 ## Configuration
 
