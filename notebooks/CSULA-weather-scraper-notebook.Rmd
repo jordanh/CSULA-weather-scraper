@@ -18,7 +18,7 @@ df <- read.csv(newestFilename)
 ## Convert columns with character times in UTC to POSIXct in local time:
 ```{r}
 timeCols <- str_match(names(df), ".+_(at|time)$") %>% { .[,1] } %>% .[!is.na(.)]
-df[timeCols] <- lapply(df[timeCols], function (x) as.POSIXct(x, format="%Y-%m-%d %H:%M:%S", tz="UTC"))
+df[timeCols] <- lapply(df[timeCols], function (x) as.POSIXct(x, origin="1970-01-01"))
 df[timeCols] <- lapply(df[timeCols],
   function (x) {
     attr(x, "tzone") <- "America/Los_Angeles"
